@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { spec } from 'modules/sydneyBidAdapter';
+import { config } from 'src/config';
 import { newBidder } from 'src/adapters/bidderFactory';
 
 describe('SydneyAdapter', function () {
@@ -83,6 +84,7 @@ describe('SydneyAdapter', function () {
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535');
       expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'EUR');
     });
 
     it('auids must not be duplicated', () => {
@@ -93,6 +95,7 @@ describe('SydneyAdapter', function () {
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903537');
       expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'EUR');
     });
 
     it('pt parameter must be "gross" if params.priceType === "gross"', () => {
@@ -104,6 +107,7 @@ describe('SydneyAdapter', function () {
       expect(payload).to.have.property('pt', 'gross');
       expect(payload).to.have.property('auids', '903535,903537');
       expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'EUR');
       delete bidRequests[1].params.priceType;
     });
 
@@ -116,7 +120,34 @@ describe('SydneyAdapter', function () {
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903537');
       expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'EUR');
       delete bidRequests[1].params.priceType;
+    });
+    it('should add currency from currency.bidderCurrencyDefault', () => {
+      const getConfigStub = sinon.stub(config, 'getConfig',
+        arg => arg === 'currency.bidderCurrencyDefault.sydney' ? 'JPY' : 'USD');
+      const request = spec.buildRequests(bidRequests);
+      const payload = request.data;
+      expect(payload).to.be.an('object');
+      expect(payload).to.have.property('u').that.is.a('string');
+      expect(payload).to.have.property('pt', 'net');
+      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'JPY');
+      getConfigStub.restore();
+    });
+    it('should add currency from currency.adServerCurrency', () => {
+      const getConfigStub = sinon.stub(config, 'getConfig',
+        arg => arg === 'currency.bidderCurrencyDefault.sydney' ? '' : 'USD');
+      const request = spec.buildRequests(bidRequests);
+      const payload = request.data;
+      expect(payload).to.be.an('object');
+      expect(payload).to.have.property('u').that.is.a('string');
+      expect(payload).to.have.property('pt', 'net');
+      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('r', '22edbae2733bf6');
+      expect(payload).to.have.property('cur', 'USD');
+      getConfigStub.restore();
     });
   });
 
@@ -155,7 +186,7 @@ describe('SydneyAdapter', function () {
           'width': 300,
           'height': 250,
           'ad': '<div>test content 1</div>',
-          'currency': 'USD',
+          'currency': 'EUR',
           'netRevenue': true,
           'ttl': 360,
         }
@@ -211,7 +242,7 @@ describe('SydneyAdapter', function () {
           'width': 300,
           'height': 250,
           'ad': '<div>test content 1</div>',
-          'currency': 'USD',
+          'currency': 'EUR',
           'netRevenue': true,
           'ttl': 360,
         },
@@ -223,7 +254,7 @@ describe('SydneyAdapter', function () {
           'width': 300,
           'height': 250,
           'ad': '<div>test content 1</div>',
-          'currency': 'USD',
+          'currency': 'EUR',
           'netRevenue': true,
           'ttl': 360,
         },
@@ -235,7 +266,7 @@ describe('SydneyAdapter', function () {
           'width': 728,
           'height': 90,
           'ad': '<div>test content 2</div>',
-          'currency': 'USD',
+          'currency': 'EUR',
           'netRevenue': true,
           'ttl': 360,
         }
@@ -243,6 +274,42 @@ describe('SydneyAdapter', function () {
 
       const result = spec.interpretResponse({'body': {'seatbid': [responses[0], responses[1]]}}, request);
       expect(result).to.deep.equal(expectedResponse);
+    });
+
+    it('should return right currency', () => {
+      const bidRequests = [
+        {
+          'bidder': 'sydney',
+          'params': {
+            'uid': '903535'
+          },
+          'adUnitCode': 'adunit-code-1',
+          'sizes': [[300, 250], [300, 600]],
+          'bidId': '659423fff799cb',
+          'bidderRequestId': '5f2009617a7c0a',
+          'auctionId': '1cbd2feafe5e8b',
+        }
+      ];
+      const getConfigStub = sinon.stub(config, 'getConfig').returns('JPY');
+      const request = spec.buildRequests(bidRequests);
+      const expectedResponse = [
+        {
+          'requestId': '659423fff799cb',
+          'cpm': 1.15,
+          'creativeId': 903535,
+          'dealId': undefined,
+          'width': 300,
+          'height': 250,
+          'ad': '<div>test content 1</div>',
+          'currency': 'JPY',
+          'netRevenue': true,
+          'ttl': 360,
+        }
+      ];
+
+      const result = spec.interpretResponse({'body': {'seatbid': [responses[0]]}}, request);
+      expect(result).to.deep.equal(expectedResponse);
+      getConfigStub.restore();
     });
 
     it('handles wrong and nobid responses', () => {

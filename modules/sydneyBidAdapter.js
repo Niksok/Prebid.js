@@ -1,8 +1,10 @@
 import * as utils from 'src/utils';
 import {registerBidder} from 'src/adapters/bidderFactory';
+import { config } from 'src/config';
 const BIDDER_CODE = 'sydney';
 const ENDPOINT_URL = '//t.visx.net/hb';
 const TIME_TO_LIVE = 360;
+const DEFAULT_CUR = 'EUR';
 const ADAPTER_SYNC_URL = '//t.visx.net/push_sync';
 const LOG_ERROR_MESS = {
   noAuid: 'Bid from response has no auid parameter - ',
@@ -24,6 +26,10 @@ export const spec = {
     const auids = [];
     const bidsMap = {};
     const bids = validBidRequests || [];
+    const currency =
+      config.getConfig(`currency.bidderCurrencyDefault.${BIDDER_CODE}`) ||
+      config.getConfig('currency.adServerCurrency') ||
+      DEFAULT_CUR;
     let priceType = 'net';
     let reqId;
 
@@ -46,6 +52,7 @@ export const spec = {
       auids: auids.join(','),
       test: 1,
       r: reqId,
+      cur: currency,
     };
 
     return {
@@ -56,10 +63,11 @@ export const spec = {
     };
   },
   interpretResponse: function(serverResponse, bidRequest) {
-    serverResponse = serverResponse && serverResponse.body
+    serverResponse = serverResponse && serverResponse.body;
     const bidResponses = [];
     const bidsMap = bidRequest.bidsMap;
     const priceType = bidRequest.data.pt;
+    const currency = bidRequest.data.cur;
 
     let errorMessage;
 
@@ -70,7 +78,7 @@ export const spec = {
 
     if (!errorMessage && serverResponse.seatbid) {
       serverResponse.seatbid.forEach(respItem => {
-        _addBidResponse(_getBidFromResponse(respItem), bidsMap, priceType, bidResponses);
+        _addBidResponse(_getBidFromResponse(respItem), bidsMap, priceType, currency, bidResponses);
       });
     }
     if (errorMessage) utils.logError(errorMessage);
@@ -97,7 +105,7 @@ function _getBidFromResponse(respItem) {
   return respItem && respItem.bid && respItem.bid[0];
 }
 
-function _addBidResponse(serverBid, bidsMap, priceType, bidResponses) {
+function _addBidResponse(serverBid, bidsMap, priceType, currency, bidResponses) {
   console.log('_addBidResponse', serverBid);
   if (!serverBid) return;
   let errorMessage;
@@ -113,7 +121,7 @@ function _addBidResponse(serverBid, bidsMap, priceType, bidResponses) {
           width: serverBid.w,
           height: serverBid.h,
           creativeId: serverBid.auid,
-          currency: 'USD',
+          currency: currency || DEFAULT_CUR,
           netRevenue: priceType !== 'gross',
           ttl: TIME_TO_LIVE,
           ad: serverBid.adm,
