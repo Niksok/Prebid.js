@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { spec } from 'modules/sydneyBidAdapter';
+import { spec } from 'modules/visxBidAdapter';
 import { config } from 'src/config';
 import { newBidder } from 'src/adapters/bidderFactory';
 
-describe('SydneyAdapter', function () {
+describe('VisxAdapter', function () {
   const adapter = newBidder(spec);
 
   describe('inherited functions', () => {
@@ -14,7 +14,7 @@ describe('SydneyAdapter', function () {
 
   describe('isBidRequestValid', () => {
     let bid = {
-      'bidder': 'sydney',
+      'bidder': 'visx',
       'params': {
         'uid': '903536'
       },
@@ -42,7 +42,7 @@ describe('SydneyAdapter', function () {
   describe('buildRequests', () => {
     let bidRequests = [
       {
-        'bidder': 'sydney',
+        'bidder': 'visx',
         'params': {
           'uid': '903535'
         },
@@ -53,7 +53,7 @@ describe('SydneyAdapter', function () {
         'auctionId': '1d1a030790a475',
       },
       {
-        'bidder': 'sydney',
+        'bidder': 'visx',
         'params': {
           'uid': '903535'
         },
@@ -64,7 +64,7 @@ describe('SydneyAdapter', function () {
         'auctionId': '1d1a030790a475',
       },
       {
-        'bidder': 'sydney',
+        'bidder': 'visx',
         'params': {
           'uid': '903537'
         },
@@ -125,7 +125,7 @@ describe('SydneyAdapter', function () {
     });
     it('should add currency from currency.bidderCurrencyDefault', () => {
       const getConfigStub = sinon.stub(config, 'getConfig',
-        arg => arg === 'currency.bidderCurrencyDefault.sydney' ? 'JPY' : 'USD');
+        arg => arg === 'currency.bidderCurrencyDefault.visx' ? 'JPY' : 'USD');
       const request = spec.buildRequests(bidRequests);
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -138,7 +138,7 @@ describe('SydneyAdapter', function () {
     });
     it('should add currency from currency.adServerCurrency', () => {
       const getConfigStub = sinon.stub(config, 'getConfig',
-        arg => arg === 'currency.bidderCurrencyDefault.sydney' ? '' : 'USD');
+        arg => arg === 'currency.bidderCurrencyDefault.visx' ? '' : 'USD');
       const request = spec.buildRequests(bidRequests);
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -165,7 +165,7 @@ describe('SydneyAdapter', function () {
     it('should get correct bid response', () => {
       const bidRequests = [
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903535'
           },
@@ -199,7 +199,7 @@ describe('SydneyAdapter', function () {
     it('should get correct multi bid response', () => {
       const bidRequests = [
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903535'
           },
@@ -210,7 +210,7 @@ describe('SydneyAdapter', function () {
           'auctionId': '1fa09aee5c8c99',
         },
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903536'
           },
@@ -221,7 +221,7 @@ describe('SydneyAdapter', function () {
           'auctionId': '1fa09aee5c8c99',
         },
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903535'
           },
@@ -279,7 +279,7 @@ describe('SydneyAdapter', function () {
     it('should return right currency', () => {
       const bidRequests = [
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903535'
           },
@@ -315,7 +315,7 @@ describe('SydneyAdapter', function () {
     it('handles wrong and nobid responses', () => {
       const bidRequests = [
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903537'
           },
@@ -326,7 +326,7 @@ describe('SydneyAdapter', function () {
           'auctionId': '1fa09aee5c84d34',
         },
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903538'
           },
@@ -337,7 +337,7 @@ describe('SydneyAdapter', function () {
           'auctionId': '1fa09aee5c84d34',
         },
         {
-          'bidder': 'sydney',
+          'bidder': 'visx',
           'params': {
             'uid': '903539'
           },

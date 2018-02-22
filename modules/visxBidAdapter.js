@@ -1,7 +1,7 @@
 import * as utils from 'src/utils';
 import {registerBidder} from 'src/adapters/bidderFactory';
 import { config } from 'src/config';
-const BIDDER_CODE = 'sydney';
+const BIDDER_CODE = 'visx';
 const ENDPOINT_URL = '//t.visx.net/hb';
 const TIME_TO_LIVE = 360;
 const DEFAULT_CUR = 'EUR';
