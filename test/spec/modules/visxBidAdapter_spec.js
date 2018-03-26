@@ -66,7 +66,7 @@ describe('VisxAdapter', function () {
       {
         'bidder': 'visx',
         'params': {
-          'uid': '903537'
+          'uid': '903536'
         },
         'adUnitCode': 'adunit-code-1',
         'sizes': [[300, 250], [300, 600]],
@@ -93,7 +93,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.be.an('object');
       expect(payload).to.have.property('u').that.is.a('string');
       expect(payload).to.have.property('pt', 'net');
-      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('auids', '903535,903536');
       expect(payload).to.have.property('r', '22edbae2733bf6');
       expect(payload).to.have.property('cur', 'EUR');
     });
@@ -105,7 +105,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.be.an('object');
       expect(payload).to.have.property('u').that.is.a('string');
       expect(payload).to.have.property('pt', 'gross');
-      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('auids', '903535,903536');
       expect(payload).to.have.property('r', '22edbae2733bf6');
       expect(payload).to.have.property('cur', 'EUR');
       delete bidRequests[1].params.priceType;
@@ -118,7 +118,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.be.an('object');
       expect(payload).to.have.property('u').that.is.a('string');
       expect(payload).to.have.property('pt', 'net');
-      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('auids', '903535,903536');
       expect(payload).to.have.property('r', '22edbae2733bf6');
       expect(payload).to.have.property('cur', 'EUR');
       delete bidRequests[1].params.priceType;
@@ -131,7 +131,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.be.an('object');
       expect(payload).to.have.property('u').that.is.a('string');
       expect(payload).to.have.property('pt', 'net');
-      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('auids', '903535,903536');
       expect(payload).to.have.property('r', '22edbae2733bf6');
       expect(payload).to.have.property('cur', 'JPY');
       getConfigStub.restore();
@@ -144,7 +144,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.be.an('object');
       expect(payload).to.have.property('u').that.is.a('string');
       expect(payload).to.have.property('pt', 'net');
-      expect(payload).to.have.property('auids', '903535,903537');
+      expect(payload).to.have.property('auids', '903535,903536');
       expect(payload).to.have.property('r', '22edbae2733bf6');
       expect(payload).to.have.property('cur', 'USD');
       getConfigStub.restore();
@@ -155,7 +155,7 @@ describe('VisxAdapter', function () {
     const responses = [
       {'bid': [{'price': 1.15, 'adm': '<div>test content 1</div>', 'auid': 903535, 'h': 250, 'w': 300}], 'seat': '1'},
       {'bid': [{'price': 0.5, 'adm': '<div>test content 2</div>', 'auid': 903536, 'h': 90, 'w': 728}], 'seat': '1'},
-      {'bid': [{'price': 0, 'auid': 903537, 'h': 250, 'w': 300}], 'seat': '1'},
+      {'bid': [{'price': 0, 'auid': 903536, 'h': 250, 'w': 300}], 'seat': '1'},
       {'bid': [{'price': 0, 'adm': '<div>test content 4</div>', 'h': 250, 'w': 300}], 'seat': '1'},
       undefined,
       {'bid': [], 'seat': '1'},
@@ -317,7 +317,7 @@ describe('VisxAdapter', function () {
         {
           'bidder': 'visx',
           'params': {
-            'uid': '903537'
+            'uid': '903536'
           },
           'adUnitCode': 'adunit-code-1',
           'sizes': [[300, 250], [300, 600]],

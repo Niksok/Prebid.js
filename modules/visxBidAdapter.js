@@ -106,7 +106,6 @@ function _getBidFromResponse(respItem) {
 }
 
 function _addBidResponse(serverBid, bidsMap, priceType, currency, bidResponses) {
-  console.log('_addBidResponse', serverBid);
   if (!serverBid) return;
   let errorMessage;
   if (!serverBid.auid) errorMessage = LOG_ERROR_MESS.noAuid + JSON.stringify(serverBid);
