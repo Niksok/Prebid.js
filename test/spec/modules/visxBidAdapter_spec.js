@@ -124,7 +124,7 @@ describe('VisxAdapter', function () {
       delete bidRequests[1].params.priceType;
     });
     it('should add currency from currency.bidderCurrencyDefault', () => {
-      const getConfigStub = sinon.stub(config, 'getConfig',
+      const getConfigStub = sinon.stub(config, 'getConfig').callsFake(
         arg => arg === 'currency.bidderCurrencyDefault.visx' ? 'JPY' : 'USD');
       const request = spec.buildRequests(bidRequests);
       const payload = request.data;
@@ -137,7 +137,7 @@ describe('VisxAdapter', function () {
       getConfigStub.restore();
     });
     it('should add currency from currency.adServerCurrency', () => {
-      const getConfigStub = sinon.stub(config, 'getConfig',
+      const getConfigStub = sinon.stub(config, 'getConfig').callsFake(
         arg => arg === 'currency.bidderCurrencyDefault.visx' ? '' : 'USD');
       const request = spec.buildRequests(bidRequests);
       const payload = request.data;
