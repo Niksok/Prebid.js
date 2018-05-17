@@ -11,8 +11,8 @@ const LOG_ERROR_MESS = {
   noAdm: 'Bid from response has no adm parameter - ',
   noBid: 'Array of bid objects is empty',
   noPlacementCode: 'Can\'t find in requested bids the bid with auid - ',
-  emptyUids: 'Uids should be not empty',
-  emptySeatbid: 'Seatbid array from response has empty item',
+  emptyUids: 'Uids should not be empty',
+  emptySeatbid: 'Seatbid array from response has an empty item',
   emptyResponse: 'Response is empty',
   hasEmptySeatbidArray: 'Response has empty seatbid array',
   hasNoArrayOfBids: 'Seatbid from response has no array of bid objects - '
