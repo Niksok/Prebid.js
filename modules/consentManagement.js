@@ -8,6 +8,7 @@ import * as utils from 'src/utils';
 import { config } from 'src/config';
 import { gdprDataHandler } from 'src/adaptermanager';
 import includes from 'core-js/library/fn/array/includes';
+import strIncludes from 'core-js/library/fn/string/includes';
 
 const DEFAULT_CMP = 'iab';
 const DEFAULT_CONSENT_TIMEOUT = 10000;
@@ -22,6 +23,7 @@ let consentData;
 let context;
 let args;
 let nextFn;
+let bidsBackHandler;
 
 let timer;
 let haveExited;
@@ -131,7 +133,7 @@ function lookupIabConsent(cmpSuccess, cmpError, adUnits) {
 
   function readPostMessageResponse(event) {
     // small customization to prevent reading strings from other sources that aren't JSON.stringified
-    let json = (typeof event.data === 'string' && includes(event.data, 'cmpReturn')) ? JSON.parse(event.data) : event.data;
+    let json = (typeof event.data === 'string' && strIncludes(event.data, 'cmpReturn')) ? JSON.parse(event.data) : event.data;
     if (json.__cmpReturn) {
       let i = json.__cmpReturn;
       cmpCallbacks[i.callId](i.returnValue, i.success);
@@ -154,15 +156,16 @@ function lookupIabConsent(cmpSuccess, cmpError, adUnits) {
  * user's encoded consent string from the supported CMP.  Once obtained, the module will store this
  * data as part of a gdprConsent object which gets transferred to adaptermanager's gdprDataHandler object.
  * This information is later added into the bidRequest object for any supported adapters to read/pass along to their system.
- * @param {object} config required; This is the same param that's used in pbjs.requestBids.
+ * @param {object} reqBidsConfigObj required; This is the same param that's used in pbjs.requestBids.
  * @param {function} fn required; The next function in the chain, used by hook.js
  */
-export function requestBidsHook(config, fn) {
+export function requestBidsHook(reqBidsConfigObj, fn) {
   context = this;
   args = arguments;
   nextFn = fn;
   haveExited = false;
-  let adUnits = config.adUnits || $$PREBID_GLOBAL$$.adUnits;
+  let adUnits = reqBidsConfigObj.adUnits || $$PREBID_GLOBAL$$.adUnits;
+  bidsBackHandler = reqBidsConfigObj.bidsBackHandler;
 
   // in case we already have consent (eg during bid refresh)
   if (consentData) {
@@ -262,6 +265,11 @@ function exitModule(errMsg) {
         nextFn.apply(context, args);
       } else {
         utils.logError(errMsg + ' Canceling auction as per consentManagement config.');
+        if (typeof bidsBackHandler === 'function') {
+          bidsBackHandler();
+        } else {
+          utils.logError('Error executing bidsBackHandler');
+        }
       }
     } else {
       nextFn.apply(context, args);
