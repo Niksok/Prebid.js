@@ -55,6 +55,15 @@ export const spec = {
       cur: currency,
     };
 
+    if (bidderRequest && bidderRequest.gdprConsent) {
+      if (bidderRequest.gdprConsent.consentString) {
+        payload.gdpr_consent = bidderRequest.gdprConsent.consentString;
+      }
+      payload.gdpr_applies =
+        (typeof bidderRequest.gdprConsent.gdprApplies === 'boolean')
+          ? Number(bidderRequest.gdprConsent.gdprApplies) : 1;
+    }
+
     return {
       method: 'GET',
       url: ENDPOINT_URL,
