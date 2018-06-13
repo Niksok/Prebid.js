@@ -22,7 +22,7 @@ export const spec = {
   isBidRequestValid: function(bid) {
     return !!bid.params.uid;
   },
-  buildRequests: function(validBidRequests) {
+  buildRequests: function(validBidRequests, bidderRequest) {
     const auids = [];
     const bidsMap = {};
     const bids = validBidRequests || [];
