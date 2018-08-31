@@ -1,11 +1,12 @@
 import {expect} from 'chai';
 import adapterManager from 'src/adaptermanager';
-import {spec, masSizeOrdering, resetUserSync} from 'modules/rubiconBidAdapter';
+import {spec, masSizeOrdering, resetUserSync, hasVideoMediaType} from 'modules/rubiconBidAdapter';
 import {parse as parseQuery} from 'querystring';
 import {newBidder} from 'src/adapters/bidderFactory';
 import {userSync} from 'src/userSync';
 import {config} from 'src/config';
 import * as utils from 'src/utils';
+import find from 'core-js/library/fn/array/find';
 
 var CONSTANTS = require('src/constants.json');
 
@@ -31,7 +32,7 @@ describe('the rubicon adapter', () => {
    * @return {sizeMapConverted}
    */
   function getSizeIdForBid(sizesMapConverted, bid) {
-    return sizesMapConverted.find(item => (item.width === bid.width && item.height === bid.height));
+    return find(sizesMapConverted, item => (item.width === bid.width && item.height === bid.height));
   }
 
   /**
@@ -40,7 +41,7 @@ describe('the rubicon adapter', () => {
    * @return {Object}
    */
   function getResponseAdBySize(ads, size) {
-    return ads.find(item => item.size_id === size.sizeId);
+    return find(ads, item => item.size_id === size.sizeId);
   }
 
   /**
@@ -49,7 +50,7 @@ describe('the rubicon adapter', () => {
    * @return {BidRequest}
    */
   function getBidRequestBySize(bidRequests, size) {
-    return bidRequests.find(item => item.sizes[0][0] === size.width && item.sizes[0][1] === size.height);
+    return find(bidRequests, item => item.sizes[0][0] === size.width && item.sizes[0][1] === size.height);
   }
 
   /**
@@ -214,7 +215,7 @@ describe('the rubicon adapter', () => {
       'p_aso.video.ext.skipdelay': 15,
       'playerHeight': 320,
       'playerWidth': 640,
-      'size_id': 201,
+      'size_id': 203,
       'aeParams': {
         'p_aso.video.ext.skip': '1',
         'p_aso.video.ext.skipdelay': '15'
@@ -274,11 +275,12 @@ describe('the rubicon adapter', () => {
             keywords: ['a', 'b', 'c'],
             inventory: {
               rating: '5-star',
-              prodtype: 'tech'
+              prodtype: ['tech', 'mobile']
             },
             visitor: {
               ucat: 'new',
-              lastsearch: 'iphone'
+              lastsearch: 'iphone',
+              likes: ['sports', 'video games']
             },
             position: 'atf',
             referrer: 'localhost',
@@ -374,8 +376,9 @@ describe('the rubicon adapter', () => {
             'kw': 'a,b,c',
             'tg_v.ucat': 'new',
             'tg_v.lastsearch': 'iphone',
+            'tg_v.likes': 'sports,video games',
             'tg_i.rating': '5-star',
-            'tg_i.prodtype': 'tech',
+            'tg_i.prodtype': 'tech,mobile',
             'tg_fl.eid': 'div-1',
             'rf': 'localhost'
           };
@@ -388,6 +391,17 @@ describe('the rubicon adapter', () => {
             } else {
               expect(data[key]).to.equal(value);
             }
+          });
+        });
+
+        it('ad engine query params should be ordered correctly', () => {
+          sandbox.stub(Math, 'random').callsFake(() => 0.1);
+          let [request] = spec.buildRequests(bidderRequest.bids, bidderRequest);
+
+          const referenceOrdering = ['account_id', 'site_id', 'zone_id', 'size_id', 'alt_size_ids', 'p_pos', 'rf', 'p_geo.latitude', 'p_geo.longitude', 'kw', 'tg_v.ucat', 'tg_v.lastsearch', 'tg_v.likes', 'tg_i.rating', 'tg_i.prodtype', 'tk_flint', 'x_source.tid', 'p_screen_res', 'rp_floor', 'rp_secure', 'tk_user_key', 'tg_fl.eid', 'slots', 'rand'];
+
+          request.data.split('&').forEach((item, i) => {
+            expect(item.split('=')[0]).to.equal(referenceOrdering[i]);
           });
         });
 
@@ -409,8 +423,9 @@ describe('the rubicon adapter', () => {
             'kw': 'a,b,c',
             'tg_v.ucat': 'new',
             'tg_v.lastsearch': 'iphone',
+            'tg_v.likes': 'sports,video games',
             'tg_i.rating': '5-star',
-            'tg_i.prodtype': 'tech',
+            'tg_i.prodtype': 'tech,mobile',
             'rf': 'localhost',
             'p_geo.latitude': undefined,
             'p_geo.longitude': undefined
@@ -811,8 +826,9 @@ describe('the rubicon adapter', () => {
               'kw': 'a,b,c',
               'tg_v.ucat': 'new',
               'tg_v.lastsearch': 'iphone',
+              'tg_v.likes': 'sports,video games',
               'tg_i.rating': '5-star',
-              'tg_i.prodtype': 'tech',
+              'tg_i.prodtype': 'tech,mobile',
               'tg_fl.eid': 'div-1',
               'rf': 'localhost'
             };
@@ -1045,7 +1061,7 @@ describe('the rubicon adapter', () => {
 
           expect(slot).to.have.property('inventory').that.is.an('object');
           expect(slot.inventory).to.have.property('rating').that.equals('5-star');
-          expect(slot.inventory).to.have.property('prodtype').that.equals('tech');
+          expect(slot.inventory).to.have.property('prodtype').that.deep.equals(['tech', 'mobile']);
 
           expect(slot).to.have.property('keywords')
             .that.is.an('array')
@@ -1055,6 +1071,7 @@ describe('the rubicon adapter', () => {
           expect(slot).to.have.property('visitor').that.is.an('object');
           expect(slot.visitor).to.have.property('ucat').that.equals('new');
           expect(slot.visitor).to.have.property('lastsearch').that.equals('iphone');
+          expect(slot.visitor).to.have.property('likes').that.deep.equals(['sports', 'video games']);
         });
 
         it('should make a well-formed video request', () => {
@@ -1108,7 +1125,7 @@ describe('the rubicon adapter', () => {
 
           expect(slot).to.have.property('inventory').that.is.an('object');
           expect(slot.inventory).to.have.property('rating').that.equals('5-star');
-          expect(slot.inventory).to.have.property('prodtype').that.equals('tech');
+          expect(slot.inventory).to.have.property('prodtype').that.deep.equals(['tech', 'mobile']);
 
           expect(slot).to.have.property('keywords')
             .that.is.an('array')
@@ -1118,6 +1135,7 @@ describe('the rubicon adapter', () => {
           expect(slot).to.have.property('visitor').that.is.an('object');
           expect(slot.visitor).to.have.property('ucat').that.equals('new');
           expect(slot.visitor).to.have.property('lastsearch').that.equals('iphone');
+          expect(slot.visitor).to.have.property('likes').that.deep.equals(['sports', 'video games']);
         });
 
         it('should send request with proper ad position', () => {
@@ -1196,7 +1214,9 @@ describe('the rubicon adapter', () => {
             },
             params: {
               accountId: 1001,
-              video: {}
+              video: {
+                size_id: 201
+              }
             },
             sizes: [[300, 250]]
           }
@@ -1253,13 +1273,17 @@ describe('the rubicon adapter', () => {
           expect(spec.isBidRequestValid(bidderRequestCopy.bids[0])).to.equal(false);
         });
 
-        it('should not validate bid request when video is outstream', () => {
+        it('bid request is valid when video context is outstream', () => {
           createVideoBidderRequestOutstream();
           sandbox.stub(Date, 'now').callsFake(() =>
             bidderRequest.auctionStart + 100
           );
 
-          expect(spec.isBidRequestValid(bidderRequest.bids[0])).to.equal(false);
+          const bidRequestCopy = clone(bidderRequest);
+
+          let [request] = spec.buildRequests(bidRequestCopy.bids, bidRequestCopy);
+          expect(spec.isBidRequestValid(bidderRequest.bids[0])).to.equal(true);
+          expect(request.data.slots[0].size_id).to.equal(203);
         });
 
         it('should get size from bid.sizes too', () => {
@@ -1335,8 +1359,9 @@ describe('the rubicon adapter', () => {
             'kw': 'a,b,c',
             'tg_v.ucat': 'new',
             'tg_v.lastsearch': 'iphone',
+            'tg_v.likes': 'sports,video games',
             'tg_i.rating': '5-star',
-            'tg_i.prodtype': 'tech',
+            'tg_i.prodtype': 'tech,mobile',
             'tg_fl.eid': 'div-1',
             'rf': 'localhost'
           };
@@ -1358,12 +1383,12 @@ describe('the rubicon adapter', () => {
       describe('hasVideoMediaType', () => {
         it('should return true if mediaType is video and size_id is set', () => {
           createVideoBidderRequest();
-          const legacyVideoTypeBidRequest = spec.hasVideoMediaType(bidderRequest.bids[0]);
+          const legacyVideoTypeBidRequest = hasVideoMediaType(bidderRequest.bids[0]);
           expect(legacyVideoTypeBidRequest).is.equal(true);
         });
 
         it('should return false if mediaType is video and size_id is not defined', () => {
-          expect(spec.hasVideoMediaType({
+          expect(spec.isBidRequestValid({
             bid: 99,
             mediaType: 'video',
             params: {
@@ -1373,17 +1398,17 @@ describe('the rubicon adapter', () => {
         });
 
         it('should return false if bidRequest.mediaType is not equal to video', () => {
-          expect(spec.hasVideoMediaType({
+          expect(hasVideoMediaType({
             mediaType: 'banner'
           })).is.equal(false);
         });
 
         it('should return false if bidRequest.mediaType is not defined', () => {
-          expect(spec.hasVideoMediaType({})).is.equal(false);
+          expect(hasVideoMediaType({})).is.equal(false);
         });
 
         it('should return true if bidRequest.mediaTypes.video.context is instream and size_id is defined', () => {
-          expect(spec.hasVideoMediaType({
+          expect(hasVideoMediaType({
             mediaTypes: {
               video: {
                 context: 'instream'
@@ -1398,7 +1423,7 @@ describe('the rubicon adapter', () => {
         });
 
         it('should return false if bidRequest.mediaTypes.video.context is instream but size_id is not defined', () => {
-          expect(spec.hasVideoMediaType({
+          expect(spec.isBidRequestValid({
             mediaTypes: {
               video: {
                 context: 'instream'

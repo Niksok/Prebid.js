@@ -56,13 +56,13 @@ export const spec = {
       queryString = utils.tryAppendQueryString(queryString, 'x', bidRequest.params.width);
       queryString = utils.tryAppendQueryString(queryString, 'y', bidRequest.params.height);
       if (bidderRequest && bidderRequest.gdprConsent) {
-        queryString = utils.tryAppendQueryString(queryString, 'gdprConsentString', bidderRequest.gdprConsent.consentString);
-        queryString = utils.tryAppendQueryString(queryString, 'gdprApplies', (bidderRequest.gdprConsent.gdprApplies) ? '1' : '0');
+        queryString = utils.tryAppendQueryString(queryString, 'gdprConsent', bidderRequest.gdprConsent.consentString);
+        queryString = utils.tryAppendQueryString(queryString, 'gdpr', (bidderRequest.gdprConsent.gdprApplies) ? '1' : '0');
       }
       if (bidRequest.mediaType === 'video' || (typeof bidRequest.mediaTypes == 'object' && typeof bidRequest.mediaTypes.video == 'object')) {
         queryString = utils.tryAppendQueryString(queryString, 'x', bidRequest.params.playerWidth);
         queryString = utils.tryAppendQueryString(queryString, 'y', bidRequest.params.playerHeight);
-        if (typeof vid_vastType != 'undefined') {
+        if (typeof vid_vastType != 'undefined') { // eslint-disable-line camelcase
           queryString = utils.tryAppendQueryString(queryString, 'vid_vastType', bidRequest.params.vid_vastType);
         }
         if (typeof bidRequest.mediaTypes == 'object' && typeof bidRequest.mediaTypes.video == 'object' && typeof bidRequest.mediaTypes.video.context == 'string') {
