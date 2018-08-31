@@ -98,31 +98,6 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('cur', 'EUR');
     });
 
-    it('pt parameter must be "gross" if params.priceType === "gross"', () => {
-      bidRequests[1].params.priceType = 'gross';
-      const request = spec.buildRequests(bidRequests);
-      const payload = request.data;
-      expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u').that.is.a('string');
-      expect(payload).to.have.property('pt', 'gross');
-      expect(payload).to.have.property('auids', '903535,903536');
-      expect(payload).to.have.property('r', '22edbae2733bf6');
-      expect(payload).to.have.property('cur', 'EUR');
-      delete bidRequests[1].params.priceType;
-    });
-
-    it('pt parameter must be "net" or "gross"', () => {
-      bidRequests[1].params.priceType = 'some';
-      const request = spec.buildRequests(bidRequests);
-      const payload = request.data;
-      expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u').that.is.a('string');
-      expect(payload).to.have.property('pt', 'net');
-      expect(payload).to.have.property('auids', '903535,903536');
-      expect(payload).to.have.property('r', '22edbae2733bf6');
-      expect(payload).to.have.property('cur', 'EUR');
-      delete bidRequests[1].params.priceType;
-    });
     it('should add currency from currency.bidderCurrencyDefault', () => {
       const getConfigStub = sinon.stub(config, 'getConfig').callsFake(
         arg => arg === 'currency.bidderCurrencyDefault.visx' ? 'JPY' : 'USD');
