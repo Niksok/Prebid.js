@@ -6,13 +6,13 @@ import { newBidder } from 'src/adapters/bidderFactory';
 describe('VisxAdapter', function () {
   const adapter = newBidder(spec);
 
-  describe('inherited functions', () => {
-    it('exists and is a function', () => {
+  describe('inherited functions', function () {
+    it('exists and is a function', function () {
       expect(adapter.callBids).to.exist.and.to.be.a('function');
     });
   });
 
-  describe('isBidRequestValid', () => {
+  describe('isBidRequestValid', function () {
     let bid = {
       'bidder': 'visx',
       'params': {
@@ -25,11 +25,11 @@ describe('VisxAdapter', function () {
       'auctionId': '1d1a030790a475',
     };
 
-    it('should return true when required params found', () => {
+    it('should return true when required params found', function () {
       expect(spec.isBidRequestValid(bid)).to.equal(true);
     });
 
-    it('should return false when required params are not passed', () => {
+    it('should return false when required params are not passed', function () {
       let bid = Object.assign({}, bid);
       delete bid.params;
       bid.params = {
@@ -39,7 +39,7 @@ describe('VisxAdapter', function () {
     });
   });
 
-  describe('buildRequests', () => {
+  describe('buildRequests', function () {
     let bidRequests = [
       {
         'bidder': 'visx',
@@ -76,7 +76,7 @@ describe('VisxAdapter', function () {
       }
     ];
 
-    it('should attach valid params to the tag', () => {
+    it('should attach valid params to the tag', function () {
       const request = spec.buildRequests([bidRequests[0]]);
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -87,7 +87,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('cur', 'EUR');
     });
 
-    it('auids must not be duplicated', () => {
+    it('auids must not be duplicated', function () {
       const request = spec.buildRequests(bidRequests);
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -111,7 +111,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('cur', 'JPY');
       getConfigStub.restore();
     });
-    it('should add currency from currency.adServerCurrency', () => {
+    it('should add currency from currency.adServerCurrency', function () {
       const getConfigStub = sinon.stub(config, 'getConfig').callsFake(
         arg => arg === 'currency.bidderCurrencyDefault.visx' ? '' : 'USD');
       const request = spec.buildRequests(bidRequests);
@@ -124,7 +124,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('cur', 'USD');
       getConfigStub.restore();
     });
-    it('if gdprConsent is present payload must have gdpr params', () => {
+    it('if gdprConsent is present payload must have gdpr params', function () {
       const request = spec.buildRequests(bidRequests, {gdprConsent: {consentString: 'AAA', gdprApplies: true}});
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -132,7 +132,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('gdpr_applies', 1);
     });
 
-    it('if gdprApplies is false gdpr_applies must be 0', () => {
+    it('if gdprApplies is false gdpr_applies must be 0', function () {
       const request = spec.buildRequests(bidRequests, {gdprConsent: {consentString: 'AAA', gdprApplies: false}});
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -140,7 +140,7 @@ describe('VisxAdapter', function () {
       expect(payload).to.have.property('gdpr_applies', 0);
     });
 
-    it('if gdprApplies is undefined gdpr_applies must be 1', () => {
+    it('if gdprApplies is undefined gdpr_applies must be 1', function () {
       const request = spec.buildRequests(bidRequests, {gdprConsent: {consentString: 'AAA'}});
       const payload = request.data;
       expect(payload).to.be.an('object');
@@ -149,7 +149,7 @@ describe('VisxAdapter', function () {
     });
   });
 
-  describe('interpretResponse', () => {
+  describe('interpretResponse', function () {
     const responses = [
       {'bid': [{'price': 1.15, 'adm': '<div>test content 1</div>', 'auid': 903535, 'h': 250, 'w': 300}], 'seat': '1'},
       {'bid': [{'price': 0.5, 'adm': '<div>test content 2</div>', 'auid': 903536, 'h': 90, 'w': 728}], 'seat': '1'},
@@ -160,7 +160,7 @@ describe('VisxAdapter', function () {
       {'seat': '1'},
     ];
 
-    it('should get correct bid response', () => {
+    it('should get correct bid response', function () {
       const bidRequests = [
         {
           'bidder': 'visx',
@@ -194,7 +194,7 @@ describe('VisxAdapter', function () {
       expect(result).to.deep.equal(expectedResponse);
     });
 
-    it('should get correct multi bid response', () => {
+    it('should get correct multi bid response', function () {
       const bidRequests = [
         {
           'bidder': 'visx',
@@ -274,7 +274,7 @@ describe('VisxAdapter', function () {
       expect(result).to.deep.equal(expectedResponse);
     });
 
-    it('should return right currency', () => {
+    it('should return right currency', function () {
       const bidRequests = [
         {
           'bidder': 'visx',
@@ -310,7 +310,7 @@ describe('VisxAdapter', function () {
       getConfigStub.restore();
     });
 
-    it('handles wrong and nobid responses', () => {
+    it('handles wrong and nobid responses', function () {
       const bidRequests = [
         {
           'bidder': 'visx',
