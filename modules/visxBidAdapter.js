@@ -46,7 +46,6 @@ export const spec = {
       u: utils.getTopWindowUrl(),
       pt: 'net',
       auids: auids.join(','),
-      test: 1,
       r: reqId,
       cur: currency,
     };
