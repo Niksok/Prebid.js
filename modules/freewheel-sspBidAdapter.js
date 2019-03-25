@@ -1,6 +1,6 @@
-import * as utils from 'src/utils';
-import { registerBidder } from 'src/adapters/bidderFactory';
-// import { config } from 'src/config';
+import * as utils from '../src/utils';
+import { registerBidder } from '../src/adapters/bidderFactory';
+// import { config } from '../src/config';
 
 const BIDDER_CODE = 'freewheel-ssp';
 
@@ -177,7 +177,11 @@ var getOutstreamScript = function(bid) {
 
   // default placement if no placement is set
   if (!config.hasOwnProperty('domId') && !config.hasOwnProperty('auto') && !config.hasOwnProperty('p') && !config.hasOwnProperty('article')) {
-    config.domId = 'freewheelssp_prebid_target';
+    if (config.format === 'intext-roll') {
+      config.iframeMode = 'dfp';
+    } else {
+      config.domId = 'freewheelssp_prebid_target';
+    }
   }
 
   var script = 'var config = {' +
