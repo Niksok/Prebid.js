@@ -73,6 +73,8 @@ export const spec = {
       sizes: utils.getKeys(sizeMap).join(','),
       r: reqId,
       cur: currency,
+      wrapperType: 'Prebid_js',
+      wrapperVersion: '$prebid.version$'
     };
 
     if (bidderRequest && bidderRequest.gdprConsent) {
