@@ -96,6 +96,7 @@ export const spec = {
   interpretResponse: function(serverResponse, bidRequest) {
     serverResponse = serverResponse && serverResponse.body;
     const bidResponses = [];
+    const bidsWithoutSizeMatching = [];
     const bidsMap = bidRequest.bidsMap;
     const currency = bidRequest.data.cur;
 
@@ -108,7 +109,10 @@ export const spec = {
 
     if (!errorMessage && serverResponse.seatbid) {
       serverResponse.seatbid.forEach(respItem => {
-        _addBidResponse(_getBidFromResponse(respItem), bidsMap, currency, bidResponses);
+        _addBidResponse(_getBidFromResponse(respItem), bidsMap, currency, bidResponses, bidsWithoutSizeMatching);
+      });
+      bidsWithoutSizeMatching.forEach(serverBid => {
+        _addBidResponse(serverBid, bidsMap, currency, bidResponses);
       });
     }
     if (errorMessage) utils.logError(errorMessage);
@@ -144,7 +148,7 @@ function _getBidFromResponse(respItem) {
   return respItem && respItem.bid && respItem.bid[0];
 }
 
-function _addBidResponse(serverBid, bidsMap, currency, bidResponses) {
+function _addBidResponse(serverBid, bidsMap, currency, bidResponses, bidsWithoutSizeMatching) {
   if (!serverBid) return;
   let errorMessage;
   if (!serverBid.auid) errorMessage = LOG_ERROR_MESS.noAuid + JSON.stringify(serverBid);
@@ -152,7 +156,7 @@ function _addBidResponse(serverBid, bidsMap, currency, bidResponses) {
   else {
     const awaitingBids = bidsMap[serverBid.auid];
     if (awaitingBids) {
-      const sizeId = `${serverBid.w}x${serverBid.h}`;
+      const sizeId = bidsWithoutSizeMatching ? `${serverBid.w}x${serverBid.h}` : Object.keys(awaitingBids)[0];
       if (awaitingBids[sizeId]) {
         const slot = awaitingBids[sizeId][0];
 
@@ -185,6 +189,8 @@ function _addBidResponse(serverBid, bidsMap, currency, bidResponses) {
             }
           });
         }
+      } else {
+        bidsWithoutSizeMatching && bidsWithoutSizeMatching.push(serverBid);
       }
     } else {
       errorMessage = LOG_ERROR_MESS.noPlacementCode + serverBid.auid;

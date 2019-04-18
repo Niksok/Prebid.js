@@ -522,6 +522,19 @@ describe('VisxAdapter', function () {
           'currency': 'EUR',
           'netRevenue': true,
           'ttl': 360,
+        },
+        {
+          'requestId': '1751cd90161',
+          'cpm': 0.5,
+          'creativeId': 903536,
+          'dealId': undefined,
+          'width': 350,
+          'height': 600,
+          'ad': '<div>test content 5</div>',
+          'bidderCode': 'visx',
+          'currency': 'EUR',
+          'netRevenue': true,
+          'ttl': 360,
         }
       ];
 
