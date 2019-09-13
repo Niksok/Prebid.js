@@ -78,7 +78,7 @@ export const spec = {
 
     if (bidderRequest) {
       if (bidderRequest.refererInfo && bidderRequest.refererInfo.referer) {
-        payload.u = encodeURIComponent(bidderRequest.refererInfo.referer);
+        payload.u = bidderRequest.refererInfo.referer;
       }
       if (bidderRequest.gdprConsent) {
         if (bidderRequest.gdprConsent.consentString) {

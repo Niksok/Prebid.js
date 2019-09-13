@@ -45,7 +45,7 @@ describe('VisxAdapter', function () {
         referer: 'http://example.com'
       }
     };
-    const encodedReferrer = encodeURIComponent(bidderRequest.refererInfo.referer);
+    const referrer = bidderRequest.refererInfo.referer;
     let bidRequests = [
       {
         'bidder': 'visx',
@@ -86,7 +86,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests([bidRequests[0]], bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535');
       expect(payload).to.have.property('sizes', '300x250,300x600');
@@ -98,7 +98,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
@@ -111,7 +111,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
@@ -124,7 +124,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
@@ -138,7 +138,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
@@ -153,7 +153,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
@@ -168,7 +168,7 @@ describe('VisxAdapter', function () {
       const request = spec.buildRequests(bidRequests, bidderRequest);
       const payload = request.data;
       expect(payload).to.be.an('object');
-      expect(payload).to.have.property('u', encodedReferrer);
+      expect(payload).to.have.property('u', referrer);
       expect(payload).to.have.property('pt', 'net');
       expect(payload).to.have.property('auids', '903535,903535,903536');
       expect(payload).to.have.property('sizes', '300x250,300x600,728x90');
