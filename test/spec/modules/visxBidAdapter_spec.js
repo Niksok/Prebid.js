@@ -364,7 +364,8 @@ describe('VisxAdapter', function () {
         }
       ];
 
-      const response = Object.extend({}, responses[0], {'cur': 'PLN'});
+      const response = Object.assign({}, responses[0]);
+      Object.assign(response.bid[0], {'cur': 'PLN'});
       const result = spec.interpretResponse({'body': {'seatbid': [response]}}, request);
       expect(result).to.deep.equal(expectedResponse);
       getConfigStub.restore();
