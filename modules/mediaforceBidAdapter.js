@@ -4,7 +4,7 @@ import {BANNER, NATIVE} from '../src/mediaTypes.js';
 
 const BIDDER_CODE = 'mediaforce';
 const ENDPOINT_URL = 'https://rtb.mfadsrvr.com/header_bid';
-const TEST_ENDPOINT_URL = 'https://staging-gce-sc-2.dorpat.iponweb.net/header_bid?skip_st=1&skip_aes=1&skip_bl=1';
+const TEST_ENDPOINT_URL = 'http://staging-gce-sc-2.dorpat.iponweb.net/header_bid';
 const NATIVE_ID_MAP = {};
 const NATIVE_PARAMS = {
   title: {
@@ -162,9 +162,6 @@ export const spec = {
       requests.push({
         method: 'POST',
         url: bid.params.is_test ? TEST_ENDPOINT_URL : ENDPOINT_URL,
-        /* options: {
-          customHeaders: {'Authorization': 'Basic ZG9ycGF0LWRiZzptWUNtT0NraHFB'}
-        }, */
         data: JSON.stringify(request)
       });
     });
@@ -200,13 +197,24 @@ export const spec = {
         if (serverBid.dealid) {
           bid.dealId = serverBid.dealid;
         }
-        if (serverBid.adm) {
+        let jsonAdm;
+        let adm = serverBid.adm;
+        let ext = serverBid.ext;
+        try {
+          jsonAdm = JSON.parse(adm);
+        } catch(err) {}
+        if (jsonAdm && jsonAdm.native) {
+          ext = ext || {};
+          ext.native = jsonAdm.native;
+          adm = null;
+        }
+        if (adm) {
           bid.width = serverBid.w;
           bid.height = serverBid.h;
-          bid.ad = serverBid.adm;
+          bid.ad = adm;
           bid.mediaType = BANNER;
-        } else if (serverBid.ext && serverBid.ext.native) {
-          bid.native = parseNative(serverBid.ext.native);
+        } else if (ext && ext.native) {
+          bid.native = parseNative(ext.native);
           bid.mediaType = NATIVE;
         }
 
