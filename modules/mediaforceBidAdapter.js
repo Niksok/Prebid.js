@@ -4,7 +4,7 @@ import {BANNER, NATIVE} from '../src/mediaTypes.js';
 
 const BIDDER_CODE = 'mediaforce';
 const ENDPOINT_URL = 'https://rtb.mfadsrvr.com/header_bid';
-const TEST_ENDPOINT_URL = 'http://staging-gce-sc-2.dorpat.iponweb.net/header_bid';
+const TEST_ENDPOINT_URL = 'http://staging-gce-sc-2.dorpat.iponweb.net/header_bid?debug_key=abcdefghijklmnop';
 const NATIVE_ID_MAP = {};
 const NATIVE_PARAMS = {
   title: {
@@ -202,7 +202,7 @@ export const spec = {
         let ext = serverBid.ext;
         try {
           jsonAdm = JSON.parse(adm);
-        } catch(err) {}
+        } catch (err) {}
         if (jsonAdm && jsonAdm.native) {
           ext = ext || {};
           ext.native = jsonAdm.native;
