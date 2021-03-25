@@ -4,7 +4,7 @@ import {BANNER, NATIVE} from '../src/mediaTypes.js';
 
 const BIDDER_CODE = 'mediaforce';
 const ENDPOINT_URL = 'https://rtb.mfadsrvr.com/header_bid';
-const TEST_ENDPOINT_URL = 'http://staging-gce-sc-2.dorpat.iponweb.net/header_bid?debug_key=abcdefghijklmnop';
+const TEST_ENDPOINT_URL = 'https://rtb.mfadsrvr.com/header_bid?debug_key=abcdefghijklmnop';
 const NATIVE_ID_MAP = {};
 const NATIVE_PARAMS = {
   title: {
@@ -82,6 +82,7 @@ const NATIVE_PARAMS = {
     type: 8
   }
 };
+
 Object.keys(NATIVE_PARAMS).forEach((key) => {
   NATIVE_ID_MAP[NATIVE_PARAMS[key].id] = key;
 });
@@ -113,18 +114,28 @@ export const spec = {
     }
 
     const referer = bidderRequest && bidderRequest.refererInfo ? encodeURIComponent(bidderRequest.refererInfo.referer) : '';
+    const auctionId = bidderRequest && bidderRequest.auctionId;
+    const timeout = bidderRequest && bidderRequest.timeout;
     const dnt = utils.getDNT() ? 1 : 0;
-    let requests = [];
+    const requestsMap = {};
+    const requests = [];
+    let isTest = false;
     validBidRequests.forEach(bid => {
+      isTest = isTest || bid.params.is_test;
       let tagid = bid.params.placement_id;
       let bidfloor = bid.params.bidfloor ? parseFloat(bid.params.bidfloor) : 0;
-      let imp = [];
       let validImp = false;
       let impObj = {
         id: bid.bidId,
         tagid: tagid,
-        secure: 1,
+        secure: window.location.protocol === 'https:' ? 1 : 0,
         bidfloor: bidfloor,
+        ext: {
+          mediaforce: {
+            transactionId: bid.transactionId
+          }
+        }
+
       };
       for (let mediaTypes in bid.mediaTypes) {
         switch (mediaTypes) {
@@ -139,31 +150,47 @@ export const spec = {
           default: return;
         }
       }
-      validImp && imp.push(impObj);
 
-      let request = {
-        id: bid.transactionId,
-        site: {
-          page: referer,
-          ref: referer,
-          id: bid.params.publisher_id,
-          publisher: {
-            id: bid.params.publisher_id
+      let request = requestsMap[bid.params.publisher_id];
+      if (!request) {
+        request = {
+          id: Math.round(Math.random() * 1e16).toString(16),
+          site: {
+            page: window.location.href,
+            ref: referer,
+            id: bid.params.publisher_id,
+            publisher: {
+              id: bid.params.publisher_id
+            },
           },
-        },
-        device: {
-          ua: navigator.userAgent,
-          js: 1,
-          dnt: dnt,
-          language: getLanguage()
-        },
-        imp
-      };
-      requests.push({
-        method: 'POST',
-        url: bid.params.is_test ? TEST_ENDPOINT_URL : ENDPOINT_URL,
-        data: JSON.stringify(request)
-      });
+          device: {
+            ua: navigator.userAgent,
+            js: 1,
+            dnt: dnt,
+            language: getLanguage()
+          },
+          ext: {
+            mediaforce: {
+              hb_key: auctionId
+            }
+          },
+          tmax: timeout,
+          imp: []
+        };
+        requestsMap[bid.params.publisher_id] = request;
+        requests.push({
+          method: 'POST',
+          url: ENDPOINT_URL,
+          data: request
+        });
+      }
+      validImp && request.imp.push(impObj);
+    });
+    requests.forEach((req) => {
+      if (isTest) {
+        req.url = TEST_ENDPOINT_URL;
+      }
+      req.data = JSON.stringify(req.data);
     });
     return requests;
   },
@@ -236,7 +263,8 @@ export const spec = {
       utils.triggerPixel(bid.burl);
     }
   },
-}
+};
+
 registerBidder(spec);
 
 function getLanguage() {
@@ -267,6 +295,7 @@ function parseNative(native) {
     impressionTrackers: imptrackers || [],
     javascriptTrackers: jstracker ? [jstracker] : []
   };
+
   (assets || []).forEach((asset) => {
     const {id, img, data, title} = asset;
     const key = NATIVE_ID_MAP[id];
