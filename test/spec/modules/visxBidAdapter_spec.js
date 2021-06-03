@@ -803,7 +803,6 @@ describe('VisxAdapter', function () {
           }
         }
       }}, serverResponse.bid[0])];
-
       const result = spec.interpretResponse({'body': {'seatbid': [serverResponse]}}, request);
       expect(result).to.deep.equal(expectedResponse);
     });
